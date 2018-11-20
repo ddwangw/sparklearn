@@ -1,0 +1,16 @@
+① 安装了Telnet客户端(服务器)；
+	windows下安装Telnet客户端：
+② 本机防火墙开启了8080端口(入站规则)；
+
+cmd 进入dos
+
+telnet localhost 8080
+
+ctrl+]回显内容
+
+回车，进入编辑状态
+
+输入内容
+
+如果有问题，参考如下网址：
+https://blog.csdn.net/J080624/article/details/78688124/
