@@ -14,15 +14,8 @@ public class StreamingListenPort {
 		JavaStreamingContext jssc = new JavaStreamingContext(conf, Durations.seconds(5));
 		// Create a DStream that will connect to hostname:port, like localhost:9999
 		JavaReceiverInputDStream<String> lines = jssc.socketTextStream("localhost", 9999);
-		JavaDStream<String> filterData = lines.filter(new Function<String, Boolean>() {//过滤出性别为M的数据
-            @Override
-            public Boolean call(String s) throws Exception {
-                return s.contains("123");
-            }
-        });
-		filterData.print();
 		// Split each line into words
-		/*JavaDStream<String> words = lines.flatMap(
+		JavaDStream<String> words = lines.flatMap(
 		  new FlatMapFunction<String, String>() {
 		    @Override public Iterable<String> call(String x) {
 		      return Arrays.asList(x.split(" "));
@@ -45,7 +38,7 @@ public class StreamingListenPort {
 		  });
 	
 		// Print the first ten elements of each RDD generated in this DStream to the console
-		wordCounts.print();*/
+		wordCounts.print();
 		jssc.start();              // Start the computation
 		jssc.awaitTermination();   // Wait for the computation to terminate
 	}
