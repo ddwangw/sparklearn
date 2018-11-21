@@ -48,7 +48,8 @@ public static final int PORT = 9999;//监听的端口号
                 // 向客户端回复信息  
                 DataOutputStream out = new DataOutputStream(socket.getOutputStream());  
                 System.out.print("请输入:\t");  
-                // 发送键盘输入的一行  
+                // 发送键盘输入的一行 
+                //通过这种方式读取的数据无法发送给sparkstreaming，还是连接和发送的逻辑有问题，不理解
                 String s = new BufferedReader(new InputStreamReader(System.in)).readLine();  
                 out.writeUTF(s);  
                 
