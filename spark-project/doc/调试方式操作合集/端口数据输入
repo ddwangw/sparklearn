@@ -14,3 +14,6 @@ ctrl+]回显内容
 
 如果有问题，参考如下网址：
 https://blog.csdn.net/J080624/article/details/78688124/
+
+
+使用java创建服务端，通过telnet的方式与其交互，验证是否成功，但是无法通过telnet 给sparkstreaming 输入数据
