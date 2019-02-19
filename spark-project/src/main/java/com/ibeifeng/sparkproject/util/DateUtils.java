@@ -18,7 +18,8 @@ public class DateUtils {
 			new SimpleDateFormat("yyyy-MM-dd");
 	public static final SimpleDateFormat DATEKEY_FORMAT = 
 			new SimpleDateFormat("yyyyMMdd");
-	
+	public static final SimpleDateFormat TIME_FORMAT_TWO = 
+			new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 	/**
 	 * 判断一个时间是否在另一个时间之前
 	 * @param time1 第一个时间
@@ -138,7 +139,11 @@ public class DateUtils {
 	 */
 	public static Date parseTime(String time) {
 		try {
-			return TIME_FORMAT.parse(time);
+			if(time.contains("/")) {
+				return TIME_FORMAT_TWO.parse(time);
+			}else if(time.contains("-")) {
+				return TIME_FORMAT.parse(time);
+			}
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
