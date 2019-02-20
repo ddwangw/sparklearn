@@ -11,6 +11,8 @@ import org.apache.spark.api.java.function.FlatMapFunction;
 import org.apache.spark.api.java.function.Function2;
 import org.apache.spark.api.java.function.PairFunction;
 
+import com.ibeifeng.sparkproject.util.IOUtils;
+
 import scala.Tuple2;
 
 public class KKAnalyzeBhCount {
@@ -48,12 +50,24 @@ public static void main(String[] args) {
 		    }
 		  });
 		JavaPairRDD<Integer, Integer> kkbhKeyCountSort = kkbhKeyCounts.sortByKey();
-		printArrayList(kkbhKeyCountSort.collect());
+		showFormatJsonStr(kkbhKeyCountSort.collect());
 	}
 //打印数组
 	private  static <T> void printArrayList(List<T> lists) {
 		for(T list:lists) {
 			System.out.println(list);
 		}
+	}
+	private static void showFormatJsonStr(List<Tuple2<Integer, Integer>>  lists) {
+		StringBuffer beginAndEnd = new StringBuffer("[");
+		for(Tuple2<Integer, Integer> list:lists) {
+			beginAndEnd.append("{" + 
+					"\"name\": \""+list._1+"\",\r\n" + 
+					"\"value\": \""+list._2+"\"\r\n" + 
+					"},");
+		}
+		beginAndEnd.append("]");
+		String jsonStr = beginAndEnd.toString().replace(",]", "]");
+		IOUtils.outPutFile(jsonStr,"node");
 	}
 }

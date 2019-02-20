@@ -16,6 +16,7 @@ import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.api.java.function.PairFunction;
 
 import com.ibeifeng.sparkproject.util.DateUtils;
+import com.ibeifeng.sparkproject.util.IOUtils;
 
 import scala.Tuple2;
 
@@ -58,18 +59,25 @@ public static void main(String[] args) {
 						}  
 			        }); 
 				Map<String,Integer> resultSet = new HashMap<String,Integer>();
-				int temp = 0;
+				int tempNumber = 0;
+				String tempTime = "";
 				if(list.size()>1) {
-					temp = Integer.parseInt(list.get(0)[2]);
+					tempNumber = Integer.parseInt(list.get(0)[2]);
+					tempTime = list.get(0)[7].split(" ")[0];
 					for(int i = 1 ;i<list.size();i++) {
 						int afterNumber = Integer.parseInt(list.get(i)[2]);
-						String keyStr = temp+"-"+afterNumber;
-						if(resultSet.containsKey(keyStr)) {
-							resultSet.put(keyStr, resultSet.get(keyStr)+1);
-						}else{
-							resultSet.put(keyStr, 1);
-						};
-						temp = afterNumber;
+						String afterTime = list.get(i)[7].split(" ")[0];
+						//同一天时间，且通过卡口编号不能相等
+						if(afterNumber!=tempNumber&&tempTime.equals(afterTime)) {
+							String keyStr = tempNumber+"-"+afterNumber;
+							if(resultSet.containsKey(keyStr)) {
+								resultSet.put(keyStr, resultSet.get(keyStr)+1);
+							}else{
+								resultSet.put(keyStr, 1);
+							};
+						}
+						tempNumber = afterNumber;
+						tempTime = afterTime;
 					}
 				}
 				List<String> resultList = new ArrayList<String>();
@@ -91,13 +99,44 @@ public static void main(String[] args) {
 			
 			return new Tuple2<String, Iterable<Integer>>(tuple._1,list);
 		}*/
-		printArrayList(top2score.collect());
-		
+		showFormatJsonStr(top2score.collect());
 	}
-//打印数组
+	//打印数组
 	private  static <T> void printArrayList(List<T> lists) {
 		for(T list:lists) {
 			System.out.println(list);
 		}
+		System.out.println(lists.size());
+	}
+	//生成需要的json串
+	private static void showFormatJsonStr(List<Tuple2<String, Iterable<String>>> lists) {
+		Map<String,Integer> resultSet = new HashMap<String,Integer>();
+		for(Tuple2<String, Iterable<String>> list:lists) {
+			Iterator<String> it = list._2.iterator();
+			while(it.hasNext()) {
+				String score = it.next();
+				String[] be = score.split("-");
+				//判断起始卡口是否一致，不一致进行添加，一致就不做任何处理
+				if(!be[0].equals(be[1])) {
+					if(resultSet.containsKey(be[0]+"-"+be[1])||resultSet.containsKey(be[1]+"-"+be[0])) {
+						continue;
+					}else {
+						resultSet.put(score, 1);
+					}
+				}
+			}
+		}
+		StringBuffer beginAndEnd = new StringBuffer("[");
+	//拿到不重复的数据进行拼接
+		for (Map.Entry<String, Integer> entry : resultSet.entrySet()) {
+			String[] be = entry.getKey().split("-");
+			beginAndEnd.append("{" + 
+					"\"source\": \""+be[0]+"\",\r\n" + 
+					"\"target\": \""+be[1]+"\"\r\n" + 
+					"},");
+		 }
+		beginAndEnd.append("]");
+		String jsonStr = beginAndEnd.toString().replace(",]", "]");
+		IOUtils.outPutFile(jsonStr,"link");
 	}
 }
